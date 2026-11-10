@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OmniScore AI — Voice-Controlled Multi-Sport Scoreboard</title>
+  <meta name="description" content="AI-filtered voice-controlled scoreboard for 12+ sports. Detects any spoken point value and target team while filtering out background chatter." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Top Broadcast Navigation Header -->
+  <header class="top-header">
+    <div class="brand-group">
+      <div class="brand-logo" aria-hidden="true">🎙️</div>
+      <div class="brand-title">
+        <h1>OmniScore AI</h1>
+        <p>Zero-False-Positive Voice Scoreboard • 12 Sports • GitHub Pages Ready</p>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <button id="btn-mic-toggle" class="btn-mic-primary" type="button">
+        <span class="mic-icon">🎙️</span> Start Voice Control
+      </button>
+      <button id="btn-undo" class="btn-action" type="button" disabled title="Voice: 'Undo'">↩ Undo</button>
+      <button id="btn-redo" class="btn-action" type="button" disabled title="Voice: 'Redo'">↪ Redo</button>
+      <button id="btn-swap" class="btn-action" type="button" title="Voice: 'Swap sides'">⇄ Swap Sides</button>
+      <button id="btn-reset-match" class="btn-action" type="button" title="Voice: 'Reset all scores'">⟲ Reset</button>
+      <button id="btn-fullscreen" class="btn-action" type="button" title="Toggle Fullscreen">⛶ Fullscreen</button>
+    </div>
+  </header>
+
+  <!-- 12-Sport Selector Bar -->
+  <nav class="sport-selector-container" aria-label="Select Sport">
+    <div id="sport-selector-bar" class="sport-selector-bar"></div>
+  </nav>
+
+  <!-- Main Scoreboard & Intelligence Arena -->
+  <main class="arena-layout">
+
+    <!-- Main Scoreboard Stage -->
+    <section class="scoreboard-stage" aria-label="Scoreboard">
+
+      <!-- Team A (Home / Left) -->
+      <div id="team-card-a" class="team-card">
+        <div class="team-header-row">
+          <input id="team-a-name" class="team-name-input" type="text" value="HOME" aria-label="Team A Name" />
+        </div>
+        <div class="color-picker-row" aria-label="Team A Color">
+          <span class="color-swatch color-swatch-a" data-color="#ef4444" style="background:#ef4444" title="Red"></span>
+          <span class="color-swatch color-swatch-a" data-color="#3b82f6" style="background:#3b82f6" title="Blue"></span>
+          <span class="color-swatch color-swatch-a" data-color="#10b981" style="background:#10b981" title="Green"></span>
+          <span class="color-swatch color-swatch-a" data-color="#eab308" style="background:#eab308" title="Gold"></span>
+          <span class="color-swatch color-swatch-a" data-color="#a855f7" style="background:#a855f7" title="Purple"></span>
+          <span class="color-swatch color-swatch-a" data-color="#f97316" style="background:#f97316" title="Orange"></span>
+        </div>
+
+        <div class="score-display-wrapper">
+          <div id="team-a-score" class="score-digits">0</div>
+          <span id="team-a-delta" class="score-delta-badge">+1</span>
+        </div>
+
+        <div class="team-controls-footer">
+          <div id="quick-btns-a" class="quick-btns-row"></div>
+          <div class="custom-pts-row">
+            <input id="custom-pts-a" class="custom-pts-input" type="number" min="1" max="99999" placeholder="+ Any Pts" />
+            <button id="btn-custom-add-a" class="mini-btn" type="button">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Match Clock & Period Tower -->
+      <div class="center-tower">
+        <div id="clock-panel-wrapper" class="clock-box">
+          <div id="main-clock-display" class="clock-digits">12:00</div>
+          <div class="clock-btn-row">
+            <button id="btn-clock-toggle" class="btn-action" type="button">▶ Start</button>
+            <button id="btn-clock-reset" class="btn-action" type="button">⟲</button>
+          </div>
+        </div>
+
+        <div class="period-box">
+          <div id="period-label-text" class="period-label">QUARTER</div>
+          <div class="period-controls">
+            <button id="btn-period-prev" class="mini-btn" type="button" aria-label="Previous Period">−</button>
+            <span id="period-value-text" class="period-num">1</span>
+            <button id="btn-period-next" class="mini-btn" type="button" aria-label="Next Period">+</button>
+          </div>
+        </div>
+
+        <div style="text-align:center; font-size:0.75rem; color:var(--text-muted); line-height:1.4;">
+          🗣️ Say <strong>"Add [any number] points to [Team]"</strong><br />
+          or say <strong>"Undo"</strong> anytime
+        </div>
+      </div>
+
+      <!-- Team B (Away / Right) -->
+      <div id="team-card-b" class="team-card">
+        <div class="team-header-row">
+          <input id="team-b-name" class="team-name-input" type="text" value="AWAY" aria-label="Team B Name" />
+        </div>
+        <div class="color-picker-row" aria-label="Team B Color">
+          <span class="color-swatch color-swatch-b" data-color="#3b82f6" style="background:#3b82f6" title="Blue"></span>
+          <span class="color-swatch color-swatch-b" data-color="#ef4444" style="background:#ef4444" title="Red"></span>
+          <span class="color-swatch color-swatch-b" data-color="#10b981" style="background:#10b981" title="Green"></span>
+          <span class="color-swatch color-swatch-b" data-color="#eab308" style="background:#eab308" title="Gold"></span>
+          <span class="color-swatch color-swatch-b" data-color="#a855f7" style="background:#a855f7" title="Purple"></span>
+          <span class="color-swatch color-swatch-b" data-color="#f97316" style="background:#f97316" title="Orange"></span>
+        </div>
+
+        <div class="score-display-wrapper">
+          <div id="team-b-score" class="score-digits">0</div>
+          <span id="team-b-delta" class="score-delta-badge">+1</span>
+        </div>
+
+        <div class="team-controls-footer">
+          <div id="quick-btns-b" class="quick-btns-row"></div>
+          <div class="custom-pts-row">
+            <input id="custom-pts-b" class="custom-pts-input" type="number" min="1" max="99999" placeholder="+ Any Pts" />
+            <button id="btn-custom-add-b" class="mini-btn" type="button">Add</button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Dynamic Sport-Specific Broadcast Panel -->
+    <section id="sport-specific-layout" class="sport-specific-layout" aria-label="Sport Specific Statistics"></section>
+
+    <!-- AI Voice Filter Command Center & Live Audit Log -->
+    <section class="voice-intelligence-grid" aria-label="Voice AI Controls and Audit Log">
+
+      <!-- Left: Voice Command Simulator, Cheat-Sheet & AI Filter Settings -->
+      <div class="intelligence-card">
+        <div class="card-header-bar">
+          <h2>🧠 AI Speech Recognition &amp; Chatter Filter</h2>
+          <span id="mic-status-badge" class="mic-badge badge-paused">Mic Paused</span>
+        </div>
+
+        <div class="live-transcript-box">
+          <div>
+            <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700; margin-bottom:2px;">LIVE SPEECH STREAM</div>
+            <div id="live-interim-transcript" class="transcript-text">"Waiting for voice command..."</div>
+          </div>
+          <button id="btn-test-chatter" class="mini-btn" type="button" title="Simulate background chatter or self-correction to see the AI Filter block false positives">
+            🛡️ Test Chatter Filter
+          </button>
+        </div>
+
+        <!-- Interactive Command Simulator (Works even without a mic!) -->
+        <form id="voice-sim-form" class="voice-sim-form">
+          <input
+            id="voice-sim-input"
+            class="voice-sim-input"
+            type="text"
+            placeholder="Type or test any spoken phrase (e.g. 'Add twenty seven points to Home' or 'Wait no 3 to Away')..."
+          />
+          <button class="btn-action" type="submit">Run Voice NLU</button>
+        </form>
+
+        <div>
+          <div style="font-size:0.74rem; color:var(--text-muted); font-weight:700; margin-bottom:6px;">
+            CLICK OR SPEAK SPORT COMMANDS (SUPPORTS ANY NUMBER OF POINTS):
+          </div>
+          <div id="voice-sample-chips" class="sample-chips-wrap"></div>
+        </div>
+
+        <!-- Zero-Mistake AI Guardrail Settings -->
+        <div class="ai-settings-grid">
+          <label class="setting-item" title="Require 'Scoreboard' or 'Ref' before commands in noisy gyms">
+            <span>🔒 Wake Word ("Scoreboard")</span>
+            <input id="toggle-wake-word" type="checkbox" />
+          </label>
+          <label class="setting-item" title="Announce score updates aloud">
+            <span>🔊 Voice Readback (TTS)</span>
+            <input id="toggle-tts" type="checkbox" checked />
+          </label>
+          <label class="setting-item" title="Play stadium horn, whistle, and score chimes">
+            <span>🔔 Stadium Sound Effects</span>
+            <input id="toggle-sfx" type="checkbox" checked />
+          </label>
+          <div class="setting-item">
+            <span>🎯 Min Confidence: <strong id="label-confidence-val">78%</strong></span>
+            <input id="slider-confidence" type="range" min="50" max="95" value="78" style="width:85px" />
+          </div>
+        </div>
+
+        <!-- Optional Free Cloud AI Verification (100% Optional — Local AI Filter runs free by default) -->
+        <details style="font-size:0.78rem; color:var(--text-muted);">
+          <summary style="cursor:pointer; font-weight:600;">⚡ Optional: Connect Free Gemini / Groq API Key for Cloud LLM Verification</summary>
+          <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+            <select id="select-ai-provider" class="custom-pts-input" style="width:130px;">
+              <option value="gemini">Google Gemini (Free Tier)</option>
+              <option value="groq">Groq Llama-3 (Free Tier)</option>
+            </select>
+            <input
+              id="input-ai-key"
+              class="voice-sim-input"
+              type="password"
+              placeholder="Optional API Key (Stored only in your browser localStorage)"
+              style="padding:6px 10px; font-size:0.78rem;"
+            />
+          </div>
+        </details>
+      </div>
+
+      <!-- Right: Real-Time AI Speech Filter Inspection Log -->
+      <div class="intelligence-card">
+        <div class="card-header-bar">
+          <h2>🛡️ Live Voice Filter Audit Log</h2>
+          <span style="font-size:0.74rem; color:var(--text-muted);">Shows Executed vs. Blocked Speech</span>
+        </div>
+        <div id="voice-audit-log" class="voice-audit-log"></div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <script src="sports-config.js"></script>
+  <script src="nlp-engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
